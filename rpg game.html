@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艾瑟兰大陆冒险</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(to bottom, #1a1a2e, #16213e);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .game-header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-title {
+            color: var(--light);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--secondary);
+        }
+        
+        .game-subtitle {
+            color: var(--light);
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .game-area {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .player-panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(30, 40, 60, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            color: var(--light);
+        }
+        
+        .game-content {
+            flex: 3;
+            min-width: 300px;
+            background: rgba(20, 30, 40, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            color: var(--light);
+        }
+        
+        .panel-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--secondary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 5px;
+        }
+        
+        .player-info {
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card {
+            background: rgba(40, 60, 90, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-name {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        
+        .skill-list {
+            margin-top: 20px;
+        }
+        
+        .skill {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            margin-bottom: 8px;
+            background: rgba(40, 60, 90, 0.5);
+            border-radius: 5px;
+        }
+        
+        .game-console {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            font-family: monospace;
+            border: 1px solid #444;
+        }
+        
+        .console-message {
+            padding: 5px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            background: var(--secondary);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-attack { background: var(--danger); }
+        .btn-skill { background: var(--warning); }
+        .btn-item { background: var(--success); }
+        .btn-flee { background: #9b59b6; }
+        .btn-action { background: #1abc9c; }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: rgba(40, 60, 90, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .day-info, .location-info, .alignment-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .value {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #555;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--secondary);
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+        
+        .hp-bar .progress { background: var(--danger); }
+        .mp-bar .progress { background: var(--secondary); }
+        .xp-bar .progress { background: var(--success); }
+        
+        .character-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .character-name {
+            font-size: 1.8rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .character-status {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .element-icon {
+            display: inline-block;
+            font-size: 1.5rem;
+            margin: 0 3px;
+        }
+        
+        .battle-enemies {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .enemy-card {
+            background: rgba(100, 30, 30, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 150px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .enemy-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+        }
+        
+        .enemy-name {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #ff8a8a;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        select, input {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            width: 100%;
+        }
+        
+        .weather-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(50, 50, 80, 0.6);
+            border-radius: 5px;
+        }
+        
+        .weather-icon {
+            font-size: 2rem;
+        }
+        
+        .battle-log {
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .battle-log div {
+            padding: 5px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+        
+        .choice-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .choice-btn {
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.4);
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .choice-btn:hover {
+            background: rgba(52, 152, 219, 0.8);
+            transform: scale(1.03);
+        }
+        
+        .element-fire { color: #e74c3c; }
+        .element-ice { color: #3498db; }
+        .element-lightning { color: #f1c40f; }
+        
+        .battle-damage {
+            color: #ff8a8a;
+            font-weight: bold;
+        }
+        
+        .battle-heal {
+            color: #7bed9f;
+            font-weight: bold;
+        }
+        
+        .battle-critical {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .choice-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <h1 class="game-title">艾瑟兰大陆冒险</h1>
+            <p class="game-subtitle">一场元素与道德的奇幻旅程</p>
+        </div>
+        
+        <div class="status-bar">
+            <div class="day-info">
+                <span>天数</span>
+                <span id="day-value" class="value">1</span>
+            </div>
+            <div class="location-info">
+                <span>位置</span>
+                <span id="location-value" class="value">起始之村</span>
+            </div>
+            <div class="alignment-info">
+                <span>阵营</span>
+                <span id="alignment-value" class="value">绝对中立</span>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <div class="player-panel">
+                <h2 class="panel-title">玩家信息</h2>
+                
+                <div class="character-info">
+                    <div class="character-name" id="character-name">英雄</div>
+                    <div class="character-status" id="character-status">Lv.1 [100/100 HP | 50/50 MP | 元素: 🔥]</div>
+                </div>
+                
+                <div class="progress-bar hp-bar">
+                    <div id="hp-progress" class="progress" style="width: 100%"></div>
+                </div>
+                
+                <div class="progress-bar mp-bar">
+                    <div id="mp-progress" class="progress" style="width: 100%"></div>
+                </div>
+                
+                <div class="progress-bar xp-bar">
+                    <div id="xp-progress" class="progress" style="width: 0%"></div>
+                </div>
+                
+                <div class="weather-info">
+                    <div class="weather-icon" id="weather-icon">☀️</div>
+                    <div>
+                        <div id="weather-type">晴天</div>
+                        <div id="weather-effect">火属性增强</div>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-name">力量</div>
+                        <div id="stat-strength" class="stat-value">15</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-name">敏捷</div>
+                        <div id="stat-agility" class="stat-value">10</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-name">智力</div>
+                        <div id="stat-intelligence" class="stat-value">8</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-name">等级</div>
+                        <div id="stat-level" class="stat-value">1</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-name">经验</div>
+                        <div id="stat-xp" class="stat-value">0</div>
+                    </div>
+                </div>
+                
+                <div class="skill-list">
+                    <div class="panel-title">技能</div>
+                    <div class="skill">
+                        <div>🔥 火球术</div>
+                        <div>10 MP</div>
+                    </div>
+                    <div class="skill">
+                        <div>💫 治疗术</div>
+                        <div>15 MP</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-content">
+                <h2 class="panel-title" id="content-title">游戏日志</h2>
+                
+                <div id="game-console" class="game-console">
+                    <div class="console-message">欢迎来到艾瑟兰大陆！</div>
+                    <div class="console-message">请输入你的角色名开始冒险...</div>
+                </div>
+                
+                <div id="action-container">
+                    <div id="name-input-section" style="display: block;">
+                        <div class="input-group">
+                            <input type="text" id="character-name-input" placeholder="输入角色名">
+                            <button id="start-btn" class="btn btn-action">开始冒险</button>
+                        </div>
+                    </div>
+                    
+                    <div id="battle-section" style="display: none;">
+                        <div id="battle-enemies" class="battle-enemies">
+                            <!-- 敌人会在这里动态生成 -->
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-attack" data-action="attack">攻击</button>
+                            <button class="btn btn-skill" data-action="skill">技能</button>
+                            <button class="btn btn-item" data-action="item">物品</button>
+                            <button class="btn btn-flee" data-action="flee">逃跑</button>
+                        </div>
+                    </div>
+                    
+                    <div id="skill-select-section" style="display: none;">
+                        <div class="input-group">
+                            <select id="skill-select">
+                                <option value="fireball">🔥 火球术 (10 MP)</option>
+                                <option value="heal">💫 治疗术 (15 MP)</option>
+                            </select>
+                            <button id="use-skill-btn" class="btn btn-skill">使用技能</button>
+                        </div>
+                    </div>
+                    
+                    <div id="event-section" style="display: none;">
+                        <div id="event-description" class="battle-log">
+                            <!-- 事件描述会在这里 -->
+                        </div>
+                        <div id="event-options" class="choice-options">
+                            <!-- 选项会在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏数据与状态
+        const gameState = {
+            player: null,
+            day: 1,
+            location: "起始之村",
+            alignment: 0,
+            battleActive: false,
+            enemies: [],
+            weather: "sunny",
+            currentEvent: null,
+            gameStarted: false
+        };
+
+        // 角色类
+        class Character {
+            constructor(name) {
+                this.name = name;
+                this.hp = 100;
+                this.maxHp = 100;
+                this.mp = 50;
+                this.maxMp = 50;
+                this.strength = 15;
+                this.agility = 10;
+                this.intelligence = 8;
+                this.elementAffinity = "fire";
+                this.level = 1;
+                this.experience = 0;
+                this.skills = [
+                    { id: "fireball", name: "火球术", cost: 10, power: 30, element: "fire" },
+                    { id: "heal", name: "治疗术", cost: 15, power: 0, element: null }
+                ];
+            }
+            
+            getCharacterStatus() {
+                return `Lv.${this.level} [${this.hp}/${this.maxHp} HP | ${this.mp}/${this.maxMp} MP | 元素: ${this.getElementIcon()}]`;
+            }
+            
+            getElementIcon() {
+                switch(this.elementAffinity) {
+                    case "fire": return "🔥";
+                    case "ice": return "❄️";
+                    case "lightning": return "⚡";
+                    default: return "";
+                }
+            }
+            
+            takeDamage(damage) {
+                this.hp = Math.max(0, this.hp - damage);
+                return this.hp > 0;
+            }
+            
+            heal(amount) {
+                this.hp = Math.min(this.maxHp, this.hp + amount);
+            }
+            
+            addExperience(amount) {
+                this.experience += amount;
+                const neededExp = this.level * 100;
+                if (this.experience >= neededExp) {
+                    this.levelUp();
+                    return true;
+                }
+                return false;
+            }
+            
+            levelUp() {
+                while (this.experience >= this.level * 100) {
+                    this.level++;
+                    this.experience -= (this.level - 1) * 100;
+                    
+                    // 提升属性
+                    const hpIncrease = Math.floor(Math.random() * 8) + 8;
+                    const mpIncrease = Math.floor(Math.random() * 6) + 5;
+                    
+                    this.maxHp += hpIncrease;
+                    this.hp = this.maxHp;
+                    this.maxMp += mpIncrease;
+                    this.mp = this.maxMp;
+                    
+                    this.strength += Math.floor(Math.random() * 3) + 1;
+                    this.agility += Math.floor(Math.random() * 2) + 1;
+                    this.intelligence += Math.floor(Math.random() * 3) + 1;
+                    
+                    addToConsole(`⭐ ${this.name} 升级了！现在是等级 ${this.level}！`);
+                    addToConsole(`最大生命值 +${hpIncrease} | 最大魔法值 +${mpIncrease}`);
+                }
+            }
+        }
+
+        // 敌人类
+        class Enemy {
+            constructor(type) {
+                this.type = type;
+                switch(type) {
+                    case "goblin":
+                        this.name = "哥布林";
+                        this.hp = this.maxHp = 40;
+                        this.atk = 8;
+                        this.weakness = "ice";
+                        this.rewardExp = 15;
+                        break;
+                    case "wolf":
+                        this.name = "野狼";
+                        this.hp = this.maxHp = 30;
+                        this.atk = 10;
+                        this.weakness = null;
+                        this.rewardExp = 12;
+                        break;
+                    case "slime":
+                        this.name = "史莱姆";
+                        this.hp = this.maxHp = 60;
+                        this.atk = 5;
+                        this.weakness = "fire";
+                        this.rewardExp = 20;
+                        break;
+                }
+            }
+            
+            takeDamage(damage) {
+                this.hp = Math.max(0, this.hp - damage);
+                return this.hp > 0;
+            }
+        }
+
+        // 天气系统
+        class WeatherSystem {
+            constructor() {
+                this.weatherTypes = ["sunny", "rainy", "snowy"];
+                this.currentWeather = this.getRandomWeather();
+            }
+            
+            getRandomWeather() {
+                return this.weatherTypes[Math.floor(Math.random() * this.weatherTypes.length)];
+            }
+            
+            updateWeather() {
+                this.currentWeather = this.getRandomWeather();
+                return this.currentWeather;
+            }
+            
+            getWeatherIcon() {
+                switch(this.currentWeather) {
+                    case "sunny": return "☀️";
+                    case "rainy": return "🌧️";
+                    case "snowy": return "❄️";
+                }
+            }
+            
+            getWeatherName() {
+                switch(this.currentWeather) {
+                    case "sunny": return "晴天";
+                    case "rainy": return "雨天";
+                    case "snowy": return "雪天";
+                }
+            }
+            
+            getWeatherEffect() {
+                switch(this.currentWeather) {
+                    case "sunny": return "火属性增强";
+                    case "rainy": return "雷属性增强，火属性减弱";
+                    case "snowy": return "冰属性增强，敏捷降低";
+                }
+            }
+            
+            getEffect(element) {
+                switch(this.currentWeather) {
+                    case "sunny": 
+                        return element === "fire" ? 1.2 : 1.0;
+                    case "rainy": 
+                        if (element === "lightning") return 1.3;
+                        if (element === "fire") return 0.8;
+                        return 1.0;
+                    case "snowy": 
+                        return element === "ice" ? 1.5 : 1.0;
+                    default:
+                        return 1.0;
+                }
+            }
+        }
+
+        // 道德系统
+        class MoralSystem {
+            constructor() {
+                this.alignment = 0; // -100 (混沌) 到 +100 (秩序)
+            }
+            
+            applyChoice(choice) {
+                let change = 0;
+                switch(choice) {
+                    case "save_villager": change = 20; break;
+                    case "steal_treasure": change = -30; break;
+                    case "spare_enemy": change = 15; break;
+                    case "truth": change = 10; break;
+                    case "lie": change = -10; break;
+                    default: change = 0;
+                }
+                
+                this.alignment = Math.max(-100, Math.min(100, this.alignment + change));
+                return change;
+            }
+            
+            getAlignmentName() {
+                if (this.alignment >= 60) return "秩序之光";
+                if (this.alignment <= -60) return "混沌之渊";
+                if (this.alignment >= 20) return "守序善良";
+                if (this.alignment <= -20) return "混乱邪恶";
+                return "绝对中立";
+            }
+            
+            getEnding() {
+                if (this.alignment >= 80) return "秩序之光结局：你成为王国的守护者";
+                if (this.alignment <= -80) return "混沌之渊结局：你统治了黑暗世界";
+                if (this.alignment >= 30) return "和平结局：世界恢复了和平";
+                if (this.alignment <= -30) return "混乱结局：世界陷入无政府状态";
+                return "灰色现实结局：世界维持着微妙的平衡";
+            }
+        }
+
+        // 游戏实例
+        const weatherSystem = new WeatherSystem();
+        const moralSystem = new MoralSystem();
+
+        // DOM 操作辅助函数
+        function updatePlayerInfo() {
+            if (!gameState.player) return;
+            
+            const player = gameState.player;
+            document.getElementById("character-name").textContent = player.name;
+            document.getElementById("character-status").textContent = player.getCharacterStatus();
+            
+            // 更新进度条
+            document.getElementById("hp-progress").style.width = `${(player.hp / player.maxHp) * 100}%`;
+            document.getElementById("mp-progress").style.width = `${(player.mp / player.maxMp) * 100}%`;
+            document.getElementById("xp-progress").style.width = `${Math.min(100, (player.experience / (player.level * 100)) * 100)}%`;
+            
+            // 更新统计值
+            document.getElementById("stat-strength").textContent = player.strength;
+            document.getElementById("stat-agility").textContent = player.agility;
+            document.getElementById("stat-intelligence").textContent = player.intelligence;
+            document.getElementById("stat-level").textContent = player.level;
+            document.getElementById("stat-xp").textContent = player.experience;
+        }
+
+        function updateWorldInfo() {
+            document.getElementById("day-value").textContent = gameState.day;
+            document.getElementById("location-value").textContent = gameState.location;
+            document.getElementById("alignment-value").textContent = moralSystem.getAlignmentName();
+            
+            // 更新天气信息
+            document.getElementById("weather-icon").textContent = weatherSystem.getWeatherIcon();
+            document.getElementById("weather-type").textContent = weatherSystem.getWeatherName();
+            document.getElementById("weather-effect").textContent = weatherSystem.getWeatherEffect();
+        }
+
+        function addToConsole(message, className = "") {
+            const consoleElement = document.getElementById("game-console");
+            const messageElement = document.createElement("div");
+            messageElement.className = `console-message ${className}`;
+            messageElement.textContent = `>>> ${message}`;
+            
+            consoleElement.appendChild(messageElement);
+            consoleElement.scrollTop = consoleElement.scrollHeight;
+        }
+
+        function startNewDay() {
+            gameState.day++;
+            weatherSystem.updateWeather();
+            
+            addToConsole(`新的一天开始了！今天是第 ${gameState.day} 天，天气: ${weatherSystem.getWeatherName()}`);
+            addToConsole("探索中...");
+            
+            setTimeout(generateEvent, 1500);
+        }
+
+        function generateEvent() {
+            const events = [
+                { type: "battle", weight: 60 },
+                { type: "quest", weight: 20 },
+                { type: "treasure", weight: 15 },
+                { type: "moral_choice", weight: 5 }
+            ];
+            
+            const totalWeight = events.reduce((sum, e) => sum + e.weight, 0);
+            let randomValue = Math.floor(Math.random() * totalWeight);
+            
+            for (const event of events) {
+                if (randomValue < event.weight) {
+                    triggerEvent(event.type);
+                    return;
+                }
+                randomValue -= event.weight;
+            }
+        }
+
+        function triggerEvent(eventType) {
+            const contentTitle = document.getElementById("content-title");
+            
+            switch(eventType) {
+                case "battle":
+                    contentTitle.textContent = "战斗";
+                    showBattleUI();
+                    startBattle();
+                    break;
+                case "quest":
+                    contentTitle.textContent = "任务";
+                    showEventUI();
+                    triggerQuestEvent();
+                    break;
+                case "treasure":
+                    contentTitle.textContent = "宝藏";
+                    showEventUI();
+                    triggerTreasureEvent();
+                    break;
+                case "moral_choice":
+                    contentTitle.textContent = "道德抉择";
+                    showEventUI();
+                    triggerMoralChoiceEvent();
+                    break;
+            }
+        }
+
+        function startBattle() {
+            gameState.battleActive = true;
+            gameState.enemies = [];
+            
+            const enemyTypes = ["goblin", "wolf", "slime"];
+            const enemyCount = Math.floor(Math.random() * 2) + 1; // 1-2个敌人
+            
+            for (let i = 0; i < enemyCount; i++) {
+                const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+                gameState.enemies.push(new Enemy(type));
+            }
+            
+            renderEnemies();
+            
+            addToConsole("你遭遇了敌人：");
+            gameState.enemies.forEach(enemy => {
+                addToConsole(`  - ${enemy.name} [${enemy.hp}/${enemy.maxHp} HP]`);
+            });
+        }
+
+        function renderEnemies() {
+            const enemiesContainer = document.getElementById("battle-enemies");
+            enemiesContainer.innerHTML = "";
+            
+            gameState.enemies.forEach((enemy, index) => {
+                if (enemy.hp > 0) {
+                    const enemyCard = document.createElement("div");
+                    enemyCard.className = "enemy-card";
+                    enemyCard.dataset.index = index;
+                    
+                    const nameElement = document.createElement("div");
+                    nameElement.className = "enemy-name";
+                    nameElement.textContent = enemy.name;
+                    
+                    const hpElement = document.createElement("div");
+                    hpElement.textContent = `HP: ${enemy.hp}/${enemy.maxHp}`;
+                    
+                    enemyCard.appendChild(nameElement);
+                    enemyCard.appendChild(hpElement);
+                    enemiesContainer.appendChild(enemyCard);
+                    
+                    // 添加点击事件用于选择目标
+                    enemyCard.addEventListener("click", function() {
+                        document.querySelectorAll(".enemy-card").forEach(card => {
+                            card.style.backgroundColor = "rgba(100, 30, 30, 0.7)";
+                        });
+                        enemyCard.style.backgroundColor = "rgba(150, 50, 50, 0.9)";
+                        gameState.selectedEnemyIndex = index;
+                    });
+                }
+            });
+        }
+
+        function playerAttack() {
+            if (typeof gameState.selectedEnemyIndex === "undefined") {
+                addToConsole("请先选择一个敌人目标！");
+                return;
+            }
+            
+            const enemy = gameState.enemies[gameState.selectedEnemyIndex];
+            if (!enemy || enemy.hp <= 0) {
+                addToConsole("无效的目标！请选择其他敌人");
+                return;
+            }
+            
+            // 计算伤害
+            const damage = calculateDamage(gameState.player, enemy);
+            const isAlive = enemy.takeDamage(damage);
+            
+            addToConsole(`${gameState.player.name} 攻击了 ${enemy.name}，造成了 ${damage} 点伤害！`, "battle-damage");
+            
+            if (!isAlive) {
+                addToConsole(`${enemy.name} 被击败了！`);
+            }
+            
+            renderEnemies();
+            updatePlayerInfo();
+            
+            // 检查战斗是否结束
+            setTimeout(checkBattleStatus, 1000);
+        }
+
+        function playerUseSkill() {
+            if (typeof gameState.selectedEnemyIndex === "undefined") {
+                addToConsole("请先选择一个目标！");
+                return;
+            }
+            
+            const enemy = gameState.enemies[gameState.selectedEnemyIndex];
+            if (!enemy || enemy.hp <= 0) {
+                addToConsole("无效的目标！请选择其他敌人");
+                return;
+            }
+            
+            const skillSelect = document.getElementById("skill-select");
+            const selectedSkill = gameState.player.skills.find(s => s.id === skillSelect.value);
+            
+            // 检查MP
+            if (gameState.player.mp < selectedSkill.cost) {
+                addToConsole(`MP不足！无法使用 ${selectedSkill.name}`);
+                return;
+            }
+            
+            // 消耗MP
+            gameState.player.mp -= selectedSkill.cost;
+            updatePlayerInfo();
+            
+            if (selectedSkill.id === "heal") {
+                // 治疗
+                const healAmount = Math.floor(gameState.player.intelligence * 1.5 + 20);
+                gameState.player.heal(healAmount);
+                addToConsole(`${gameState.player.name} 使用了 治疗术，恢复了 ${healAmount} 点生命值！`, "battle-heal");
+            } else {
+                // 攻击技能
+                const damage = calculateDamage(gameState.player, enemy, selectedSkill);
+                const isAlive = enemy.takeDamage(damage);
+                
+                const elementIcon = selectedSkill.element === "fire" ? "🔥" : "";
+                addToConsole(`${gameState.player.name} 使用了 ${elementIcon}${selectedSkill.name}！`, "element-fire");
+                setTimeout(() => {
+                    addToConsole(`对 ${enemy.name} 造成了 ${damage} 点伤害！`, "battle-damage");
+                    
+                    if (!isAlive) {
+                        addToConsole(`${enemy.name} 被击败了！`);
+                    }
+                    
+                    renderEnemies();
+                    checkBattleStatus();
+                }, 800);
+            }
+            
+            // 隐藏技能选择界面
+            document.getElementById("skill-select-section").style.display = "none";
+            document.getElementById("battle-section").style.display = "block";
+        }
+
+        function calculateDamage(attacker, target, skill = null) {
+            // 基础伤害
+            let baseDamage;
+            if (skill) {
+                baseDamage = skill.power;
+                if (attacker.intelligence) {
+                    baseDamage += attacker.intelligence * 0.5;
+                }
+            } else {
+                baseDamage = attacker.strength * 2;
+            }
+            
+            // 元素克制
+            let elementBonus = 1.0;
+            if (skill && skill.element && target.weakness === skill.element) {
+                elementBonus = 2.0;
+                addToConsole(`${target.name} 被 ${skill.element === "fire" ? "🔥" : "❄️"}属性克制！伤害翻倍！`, "battle-critical");
+            }
+            
+            // 天气影响
+            let weatherBonus = skill ? weatherSystem.getEffect(skill.element) : 1.0;
+            
+            // 最终伤害
+            let damage = Math.floor(baseDamage * elementBonus * weatherBonus);
+            
+            // 暴击判定
+            const critChance = attacker.agility * 0.005;
+            if (Math.random() < critChance) {
+                damage = Math.floor(damage * 1.5);
+                addToConsole("致命一击！", "battle-critical");
+            }
+            
+            return Math.max(1, damage);
+        }
+
+        function enemyTurn() {
+            if (!gameState.battleActive) return;
+            
+            gameState.enemies.forEach(enemy => {
+                if (enemy.hp > 0) {
+                    // 随机玩家目标
+                    const player = gameState.player;
+                    
+                    // 敌人行动
+                    let damage = enemy.atk;
+                    if (Math.random() < 0.3) { // 30%几率特殊攻击
+                        damage = Math.floor(enemy.atk * 1.5);
+                        addToConsole(`${enemy.name} 发动了猛击！`);
+                    }
+                    
+                    const isAlive = player.takeDamage(damage);
+                    addToConsole(`${enemy.name} 攻击了 ${player.name}，造成了 ${damage} 点伤害！`, "battle-damage");
+                    updatePlayerInfo();
+                    
+                    if (!isAlive) {
+                        gameOver();
+                    }
+                }
+            });
+        }
+
+        function checkBattleStatus() {
+            // 检查所有敌人是否被击败
+            const allDefeated = gameState.enemies.every(enemy => enemy.hp <= 0);
+            
+            if (allDefeated) {
+                gameState.battleActive = false;
+                // 计算总经验
+                const totalExp = gameState.enemies.reduce((sum, enemy) => 
+                    enemy.hp <= 0 ? sum + enemy.rewardExp : sum, 0);
+                
+                addToConsole(`战斗胜利！获得 ${totalExp} 经验值！`, "battle-heal");
+                const leveledUp = gameState.player.addExperience(totalExp);
+                updatePlayerInfo();
+                
+                // 隐藏战斗UI
+                setTimeout(() => {
+                    document.getElementById("battle-section").style.display = "none";
+                    startNewDay();
+                }, 2000);
+            } else {
+                // 敌人回合
+                setTimeout(() => {
+                    if (gameState.player.hp > 0) {
+                        enemyTurn();
+                    } else {
+                        gameOver();
+                    }
+                }, 1000);
+            }
+        }
+
+        function triggerQuestEvent() {
+            const quests = [
+                {
+                    title: "护送商人",
+                    description: "将商人安全送到邻镇",
+                    moral: "order",
+                    outcomes: ["成功", "部分成功", "失败"]
+                },
+                {
+                    title: "清除盗贼",
+                    description: "消灭森林中的盗贼团伙",
+                    moral: "chaos",
+                    outcomes: ["成功", "部分成功", "失败"]
+                },
+                {
+                    title: "寻找草药",
+                    description: "为村里的医生寻找治疗草药",
+                    moral: "neutral",
+                    outcomes: ["成功", "部分成功", "失败"]
+                }
+            ];
+            
+            const quest = quests[Math.floor(Math.random() * quests.length)];
+            gameState.currentEvent = quest;
+            
+            const eventDesc = document.getElementById("event-description");
+            eventDesc.innerHTML = `
+                <div><strong>任务：</strong> ${quest.title}</div>
+                <div>${quest.description}</div>
+                <div><strong>任务进行中...</strong></div>
+            `;
+            
+            // 添加按钮
+            const options = document.getElementById("event-options");
+            options.innerHTML = "";
+            
+            // 显示结果按钮
+            const resultBtn = document.createElement("div");
+            resultBtn.className = "choice-btn";
+            resultBtn.textContent = "查看任务结果";
+            resultBtn.addEventListener("click", finishQuestEvent);
+            options.appendChild(resultBtn);
+        }
+
+        function finishQuestEvent() {
+            if (!gameState.currentEvent) return;
+            
+            const quest = gameState.currentEvent;
+            const outcome = quest.outcomes[Math.floor(Math.random() * quest.outcomes.length)];
+            
+            const eventDesc = document.getElementById("event-description");
+            eventDesc.innerHTML = `<div><strong>任务结果：</strong>${outcome}！</div>`;
+            
+            // 根据结果添加奖励
+            let rewardExp = 0;
+            if (outcome === "成功") {
+                rewardExp = Math.floor(Math.random() * 31) + 20; // 20-50
+                eventDesc.innerHTML += `<div>获得 ${rewardExp} 经验值</div>`;
+            } else if (outcome === "部分成功") {
+                rewardExp = Math.floor(Math.random() * 16) + 10; // 10-25
+                eventDesc.innerHTML += `<div>获得 ${rewardExp} 经验值</div>`;
+            }
+            
+            gameState.player.addExperience(rewardExp);
+            updatePlayerInfo();
+            
+            if (outcome !== "失败") {
+                const moralChange = moralSystem.applyChoice(quest.moral);
+                eventDesc.innerHTML += `<div>阵营变化: ${moralChange > 0 ? '+' : ''}${moralChange}</div>`;
+            }
+            
+            // 更新世界信息
+            updateWorldInfo();
+            
+            // 添加继续按钮
+            const options = document.getElementById("event-options");
+            options.innerHTML = "";
+            
+            const continueBtn = document.createElement("div");
+            continueBtn.className = "choice-btn";
+            continueBtn.textContent = "继续旅程";
+            continueBtn.addEventListener("click", function() {
+                document.getElementById("event-section").style.display = "none";
+                startNewDay();
+            });
+            options.appendChild(continueBtn);
+        }
+
+        function triggerTreasureEvent() {
+            const treasures = [
+                {
+                    name: "宝箱",
+                    description: "你发现了一个古老的宝箱！",
+                    reward: { experience: Math.floor(Math.random() * 21) + 30 } // 30-50
+                },
+                {
+                    name: "草药袋",
+                    description: "你采集了一些稀有草药",
+                    reward: { experience: Math.floor(Math.random() * 16) + 10 } // 10-25
+                },
+                {
+                    name: "魔法水晶",
+                    description: "一块发光的魔法水晶",
+                    reward: { hp: Math.floor(Math.random() * 21) + 20 } // 20-40
+                }
+            ];
+            
+            const treasure = treasures[Math.floor(Math.random() * treasures.length)];
+            gameState.currentEvent = treasure;
+            
+            const eventDesc = document.getElementById("event-description");
+            eventDesc.innerHTML = `
+                <div>${treasure.description}</div>
+                <div><strong>你发现了一个宝物：</strong> ${treasure.name}</div>
+            `;
+            
+            // 添加按钮
+            const options = document.getElementById("event-options");
+            options.innerHTML = "";
+            
+            const openBtn = document.createElement("div");
+            openBtn.className = "choice-btn";
+            openBtn.textContent = "打开" + (treasure.name === "宝箱" ? "宝箱" : treasure.name);
+            openBtn.addEventListener("click", function() {
+                // 应用奖励
+                let rewardMessage = "";
+                if (treasure.reward.experience) {
+                    gameState.player.addExperience(treasure.reward.experience);
+                    rewardMessage = `获得 ${treasure.reward.experience} 经验值！`;
+                    updatePlayerInfo();
+                } else if (treasure.reward.hp) {
+                    gameState.player.heal(treasure.reward.hp);
+                    rewardMessage = `恢复 ${treasure.reward.hp} 点生命值！`;
+                    updatePlayerInfo();
+                }
+                
+                eventDesc.innerHTML += `<div class="battle-heal">${rewardMessage}</div>`;
+                openBtn.style.display = "none";
+                
+                // 添加继续按钮
+                const continueBtn = document.createElement("div");
+                continueBtn.className = "choice-btn";
+                continueBtn.textContent = "继续旅程";
+                continueBtn.addEventListener("click", function() {
+                    document.getElementById("event-section").style.display = "none";
+                    startNewDay();
+                });
+                options.appendChild(continueBtn);
+            });
+            
+            options.appendChild(openBtn);
+        }
+
+        function triggerMoralChoiceEvent() {
+            const choices = [
+                {
+                    situation: "你发现受伤的旅行者",
+                    options: {
+                        save: {
+                            text: "救助他",
+                            result: {
+                                message: "旅行者感谢你并赠予你金币",
+                                reward: { experience: Math.floor(Math.random() * 21) + 20 } // 20-40
+                            },
+                            moral: "save_villager"
+                        },
+                        steal: {
+                            text: "抢劫他",
+                            result: {
+                                message: "你偷走了旅行者的财物",
+                                reward: { experience: Math.floor(Math.random() * 11) + 10 } // 10-20
+                            },
+                            moral: "steal_treasure"
+                        }
+                    }
+                },
+                {
+                    situation: "卫兵要求搜查你的背包",
+                    options: {
+                        cooperate: {
+                            text: "配合搜查",
+                            result: {
+                                message: "卫兵感谢你的合作",
+                                reward: { experience: Math.floor(Math.random() * 11) + 5 } // 5-15
+                            },
+                            moral: "truth"
+                        },
+                        bribe: {
+                            text: "拒绝并贿赂",
+                            result: {
+                                message: "你贿赂了卫兵避免了搜查",
+                                reward: { experience: Math.floor(Math.random() * 6) + 5 } // 5-10
+                            },
+                            moral: "lie"
+                        }
+                    }
+                }
+            ];
+            
+            const choiceEvent = choices[Math.floor(Math.random() * choices.length)];
+            gameState.currentEvent = choiceEvent;
+            
+            const eventDesc = document.getElementById("event-description");
+            eventDesc.innerHTML = `<div><strong>道德抉择：</strong> ${choiceEvent.situation}</div>`;
+            
+            // 添加选项按钮
+            const options = document.getElementById("event-options");
+            options.innerHTML = "";
+            
+            for (const key in choiceEvent.options) {
+                const option = choiceEvent.options[key];
+                const choiceBtn = document.createElement("div");
+                choiceBtn.className = "choice-btn";
+                choiceBtn.textContent = option.text;
+                choiceBtn.dataset.choice = key;
+                choiceBtn.addEventListener("click", function() {
+                    const choiceKey = this.dataset.choice;
+                    const option = choiceEvent.options[choiceKey];
+                    
+                    // 应用奖励
+                    if (option.reward.experience) {
+                        gameState.player.addExperience(option.reward.experience);
+                        updatePlayerInfo();
+                    }
+                    
+                    // 应用道德变化
+                    const moralChange = moralSystem.applyChoice(option.moral);
+                    
+                    // 更新显示
+                    eventDesc.innerHTML += `
+                        <div>${option.result.message}</div>
+                        <div class="battle-heal">获得 ${option.reward.experience} 经验值</div>
+                        <div>阵营变化: ${moralChange > 0 ? '+' : ''}${moralChange}</div>
+                    `;
+                    
+                    // 更新世界信息
+                    updateWorldInfo();
+                    
+                    // 清除选项按钮
+                    options.innerHTML = "";
+                    
+                    // 添加继续按钮
+                    const continueBtn = document.createElement("div");
+                    continueBtn.className = "choice-btn";
+                    continueBtn.textContent = "继续旅程";
+                    continueBtn.addEventListener("click", function() {
+                        document.getElementById("event-section").style.display = "none";
+                        startNewDay();
+                    });
+                    options.appendChild(continueBtn);
+                });
+                
+                options.appendChild(choiceBtn);
+            }
+        }
+
+        function gameOver() {
+            addToConsole("你的角色在战斗中倒下...游戏结束");
+            
+            // 结束游戏逻辑
+            document.getElementById("battle-section").style.display = "none";
+            
+            setTimeout(() => {
+                addToConsole("===== 游戏结束 =====");
+                addToConsole(`最终等级: ${gameState.player.level}`);
+                addToConsole(`阵营: ${moralSystem.getAlignmentName()}`);
+                addToConsole(moralSystem.getEnding());
+                
+                const gameEnd = document.getElementById("action-container");
+                gameEnd.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h2>游戏结束</h2>
+                        <p>最终等级: ${gameState.player.level} | 阵营: ${moralSystem.getAlignmentName()}</p>
+                        <p>${moralSystem.getEnding()}</p>
+                        <button id="restart-btn" class="btn btn-action" style="margin-top: 20px;">重新开始</button>
+                    </div>
+                `;
+                
+                document.getElementById("restart-btn").addEventListener("click", function() {
+                    location.reload();
+                });
+            }, 2000);
+        }
+
+        // UI控制函数
+        function showBattleUI() {
+            document.getElementById("name-input-section").style.display = "none";
+            document.getElementById("event-section").style.display = "none";
+            document.getElementById("battle-section").style.display = "block";
+            document.getElementById("skill-select-section").style.display = "none";
+        }
+
+        function showEventUI() {
+            document.getElementById("name-input-section").style.display = "none";
+            document.getElementById("battle-section").style.display = "none";
+            document.getElementById("skill-select-section").style.display = "none";
+            document.getElementById("event-section").style.display = "block";
+        }
+
+        // 事件监听器
+        document.getElementById("start-btn").addEventListener("click", function() {
+            const nameInput = document.getElementById("character-name-input");
+            const playerName = nameInput.value.trim() || "冒险者";
+            
+            gameState.player = new Character(playerName);
+            gameState.gameStarted = true;
+            
+            updatePlayerInfo();
+            updateWorldInfo();
+            
+            addToConsole(`${playerName} 开始了在艾瑟兰大陆的冒险！`);
+            
+            document.getElementById("name-input-section").style.display = "none";
+            startNewDay();
+        });
+
+        // 技能选择
+        document.querySelector(".btn-skill").addEventListener("click", function() {
+            document.getElementById("battle-section").style.display = "none";
+            document.getElementById("skill-select-section").style.display = "flex";
+        });
+
+        document.getElementById("use-skill-btn").addEventListener("click", playerUseSkill);
+
+        // 攻击
+        document.querySelector(".btn-attack").addEventListener("click", playerAttack);
+
+        // 逃跑
+        document.querySelector(".btn-flee").addEventListener("click", function() {
+            const fleeChance = gameState.player.agility * 0.1;
+            if (Math.random() < fleeChance) {
+                addToConsole("成功逃离了战斗！");
+                gameState.battleActive = false;
+                document.getElementById("battle-section").style.display = "none";
+                startNewDay();
+            } else {
+                addToConsole("逃跑失败！");
+                setTimeout(enemyTurn, 800);
+            }
+        });
+
+        // 初始化游戏
+        updateWorldInfo();
+    </script>
+</body>
+</html>
